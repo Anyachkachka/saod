@@ -1,0 +1,73 @@
+#include <string>
+#include <stdexcept>
+#include <algorithm>
+
+class WF{
+    private:
+    int** D = nullptr;
+    int M, N;
+    std::string s, t;
+    public:
+    WF(){
+
+    }
+
+    WF(const WF&) = delete;
+    WF& operator=(const WF&) = delete;
+
+    void Init(const std::string sc, const std::string tc){
+        if (D != nullptr)  Release();
+        s = sc;
+        t = tc;
+        M = s.size();
+        N = t.size();
+        D = new int*[M+1];
+        for (int i = 0; i < M+1; i++)
+            D[i] = new int[N+1];
+
+        for (int i = 0; i < N+1; i++)
+            D[0][i] = i;
+        for (int i = 0; i < M+1; i++)
+            D[i][0] = i;
+
+        int p;
+        for (int i = 1; i < M+1; i++){
+            for (int j = 1; j < N+1; j++){
+                p = s[i-1] == t[j-1] ? 0 : 1;
+                D[i][j] = std::min(D[i-1][j]+1, std::min(D[i][j-1]+1, D[i-1][j-1]+p));    
+            }
+        }
+    }
+
+    int Rows() const{
+        return M+1;
+    }
+
+    int Columns() const{
+        return N+1;
+    }
+
+    int Get(int i, int j) const{
+        if (i > M || j > N) throw std::out_of_range("Index out of range");
+        return D[i][j];
+    }
+
+    int Set(int i, int j, int val){
+        if (i > M || j > N) throw std::out_of_range("Index out of range");
+        D[i][j] = val;
+    }
+
+    int Distance() const{
+        return D[M][N];
+    }
+
+    void Release(){
+        for (int i = 0; i < M+1; i++)
+            delete[] D[i];
+        delete[] D;
+    } 
+
+    ~WF(){
+        Release();
+    }
+};
